@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+title: "DenseVLM Reproduction (ICCV 2025)"
+message: "If you use this reproduction, please cite the original paper as well."
+type: software
+authors:
+  - family-names: "yangshao229"
+    alias: "yangshao229"
+repository-code: "https://github.com/yangshao229/DenseVLM-Repro"
+url: "https://arxiv.org/abs/2412.06244"
+abstract: >-
+  An independent reproduction of DenseVLM (ICCV 2025) Table 1 on a single 8 GB GPU,
+  including the EVA-CLIP and CLIPSelf baseline rows, the attention-backend equivalence
+  check, and a documented account of which tables are out of reach on this hardware.
+keywords:
+  - open-vocabulary dense prediction
+  - region-language alignment
+  - reproduction
+license: null
+preferred-citation:
+  type: conference-paper
+  title: "Unbiased Region-Language Alignment for Open-Vocabulary Dense Prediction"
+  authors:
+    - family-names: "Li"
+      given-names: "Yunheng"
+    - family-names: "Li"
+      given-names: "Yuxuan"
+    - family-names: "Zeng"
+      given-names: "Quansheng"
+    - family-names: "Wang"
+      given-names: "Wenhai"
+    - family-names: "Hou"
+      given-names: "Qibin"
+    - family-names: "Cheng"
+      given-names: "Ming-Ming"
+  conference:
+    name: "IEEE/CVF International Conference on Computer Vision (ICCV)"
+  year: 2025
+  url: "https://arxiv.org/abs/2412.06244"
