@@ -23,13 +23,16 @@ the upstream repository is cloned as a subdirectory and left byte-for-byte untou
 (`HEAD 8ca50f7`, clean working tree for the whole reproduction).
 
 > **中文摘要**：在单张 RTX 5060 Laptop（8 GB）的 WSL2 环境里复现了 DenseVLM (ICCV 2025) 表 1
-> 的全部六行区域分类结果，其中四行落在 0.25 点内；表 2–8 需要约 27 次 4×A40 全量训练以及
+> 的 8 行里的 3 行（DenseVLM、EVA-CLIP、CLIPSelf），合计 12 个区域分类指标；其中 EVA-CLIP 六项
+> 全部落在 0.25 点内。表 2–8 需要约 27 次 4×A40 全量训练以及
 > A-847 / PC-459 / LVIS 数据与 SAN / CAT-Seg / F-ViT 代码，本机不可行，理由与算式都写在
 > [`docs/REPRO_STATUS.md`](docs/REPRO_STATUS.md)。三条关键发现见下方 Findings。
+>
+> **完整报告（做到了什么、没做到什么、证据在哪）：[`docs/REPRODUCTION_REPORT.md`](docs/REPRODUCTION_REPORT.md)**
 
 ## Contributions
 
-- 🔥 **Table 1 reproduced for every setting whose weights are public**: DenseVLM itself, the
+- 🔥 **Three of the eight Table 1 rows fully reproduced**: DenseVLM itself, the
   EVA-CLIP ViT-B/16 baseline, and the CLIPSelf ViT-L/14 baseline, on both COCO val2017
   (5000 images) and ADE20K val (2000 images).
 - 🔥 **The baseline rows are the actual evidence.** They run through the same code path as
@@ -43,7 +46,9 @@ the upstream repository is cloned as a subdirectory and left byte-for-byte untou
 
 ## Results
 
-Top1 / Top5. A run counts as reproduced when it lands within 0.5 points of the paper.
+Top1 / Top5. A run counts as reproduced when it lands within 0.5 points of the paper; the two
+exceptions are flagged in the delta column and dissected in
+[`docs/REPRODUCTION_REPORT.md`](docs/REPRODUCTION_REPORT.md) §3.
 
 | Setting | Dataset | Boxes | Masks (thing) | Masks (stuff) | Δ Top1 vs paper |
 |---|---|---|---|---|---|
@@ -54,8 +59,9 @@ Top1 / Top5. A run counts as reproduced when it lands within 0.5 points of the p
 | CLIPSelf ViT-L/14 @336 | COCO val2017 | 69.37 / 87.53 | 64.07 / 78.02 | 41.72 / 73.29 | +0.27 / −2.63 / +0.02 |
 | CLIPSelf ViT-L/14 @336 | ADE20K val | 49.55 / 80.83 | 49.42 / 74.03 | 54.69 / 81.11 | +1.45 / +1.92 / +0.99 |
 
-Peak memory peaks at 1.45 GB (B/16, COCO) and 5.56 GB (L/14, ADE20K); full wall-clock timings
-and per-run logs are in [`results/metrics.md`](results/metrics.md).
+Peak memory: 1.45 GB allocated / 2.28 GB reserved for B/16 on COCO, and 5.56 GB / 8.41 GB for L/14
+on ADE20K — the latter leaves almost nothing on an 8 GB card. Full wall-clock timings and per-run
+logs are in [`results/metrics.md`](results/metrics.md).
 
 ## Findings
 
@@ -166,6 +172,7 @@ The arithmetic and the alternatives are written up in
 ## Repository layout
 
 ```
+docs/REPRODUCTION_REPORT.md what was reproduced, what was not, and the evidence for both
 docs/REPRO_STATUS.md        authoritative reproduction log: numbers, peaks, timings, SHA-256, reasoning
 docs/LINUX_WSL.md           environment build, mirrors, cu130 pinning, text-embedding generation
 docs/RESEARCH_CONTEXT.md    what the project is for and what was asked of it
@@ -178,7 +185,7 @@ scripts/ctl.sh              single entry point: health / eval / train / metrics 
 scripts/linux/              Linux entry point, GPU check, embedding generator, result collector,
                             figure generator, ADE20K probes
 scripts/windows/            Windows entry point and the WSL keep-alive scheduled task
-results/                    generated metric tables (never hand-edited)
+results/                    generated metric tables and the weight SHA-256 manifest (never hand-edited)
 assets/                     generated figures
 ```
 

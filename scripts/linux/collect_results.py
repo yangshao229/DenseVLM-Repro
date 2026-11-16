@@ -142,6 +142,11 @@ def main():
             writer.writerows(rows)
 
     # --- training smoke ---------------------------------------------------
+    # Windows-side reference KL (docs/REPRO_STATUS.md, 2026-11-10 run).
+    WINDOWS_KL = {
+        "densevlm_train4_linux_amp": "4.5811; 2.8548; 3.3780; 5.1575",
+        "densevlm_train4_linux_bf16": "4.6333; 2.7883; 3.3506; 5.1705",
+    }
     train_rows = []
     for log_name, exp, precision in [
         ("densevlm_train4_linux_amp.log", "densevlm_train4_linux_amp", "fp16 (amp)"),
@@ -152,13 +157,17 @@ def main():
             missing.append(log_name)
             continue
         text = open(path, "r", encoding="utf-8", errors="replace").read()
-        kl = ["%s (ref %s)" % (a, b) for a, b in KL.findall(text)]
+        pairs = KL.findall(text)
+        kl = "; ".join(a for a, _ in pairs)
+        ema = "; ".join(b for _, b in pairs)
         peak = PEAK.search(text)
         train_rows.append({
             "experiment": exp,
             "precision": precision,
             "n_images": 4,
-            "kl_per_batch": "; ".join(kl),
+            "kl_per_batch": kl,
+            "kl_ema_same_batch": ema,
+            "windows_reference_kl": WINDOWS_KL.get(exp, ""),
             "peak_alloc_mib": "%.1f" % float(peak.group(1)) if peak else "",
             "peak_reserved_mib": "%.1f" % float(peak.group(2)) if peak else "",
             "log": "work/" + log_name,
