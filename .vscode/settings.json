@@ -1,0 +1,14 @@
+{
+  "python.defaultInterpreterPath": "/home/lenovo/.venvs/densevlm/bin/python",
+  "python.analysis.extraPaths": ["${workspaceFolder}/DenseVLM/src"],
+  "python.terminal.activateEnvironment": true,
+  "files.exclude": {
+    "**/__pycache__": true
+  },
+  "search.exclude": {
+    "**/__pycache__": true,
+    "**/work": true,
+    "**/checkpoints": true,
+    "**/data": true
+  }
+}

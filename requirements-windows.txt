@@ -1,0 +1,15 @@
+# Install the CUDA wheels separately from the PyTorch cu128 index.
+regex==2024.5.15
+ftfy==6.2.0
+tqdm==4.65.2
+huggingface-hub==0.27.1
+sentencepiece==0.2.0
+protobuf==3.20.3
+timm==1.0.12
+fsspec==2024.6.0
+numpy==1.26.4
+matplotlib
+einops
+pycocotools
+six==1.17.0
+panopticapi @ https://github.com/cocodataset/panopticapi/archive/7bb4655548f98f3fedc07bf37e9040a992b054b0.zip

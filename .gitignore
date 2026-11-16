@@ -1,0 +1,21 @@
+# Upstream code, weights, datasets and run artifacts stay out of the repository.
+/DenseVLM/
+/.venv/
+/work/
+/data/
+/checkpoints/
+/logs/
+
+# Model weights and derived embeddings are regenerable, not redistributable.
+*.pt
+*.pth
+*.npy
+*.npz
+
+# The paper PDF is copyrighted; link to it instead of vendoring it.
+outputs/*.pdf
+
+# Local noise.
+__pycache__/
+*.pyc
+.DS_Store

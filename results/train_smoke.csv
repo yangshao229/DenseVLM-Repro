@@ -1,0 +1,3 @@
+experiment,precision,n_images,kl_per_batch,peak_alloc_mib,peak_reserved_mib,log
+densevlm_train4_linux_amp,fp16 (amp),4,4.5819 (ref 4.5819); 2.8520 (ref 3.7169); 3.3793 (ref 3.6044); 5.1610 (ref 3.9935),4239.0,4388.0,work/densevlm_train4_linux_amp.log
+densevlm_train4_linux_bf16,bf16 (amp_bf16),4,4.6628 (ref 4.6628); 2.8548 (ref 3.7588); 3.3579 (ref 3.6252); 5.2051 (ref 4.0202),2020.9,2084.0,work/densevlm_train4_linux_bf16.log
