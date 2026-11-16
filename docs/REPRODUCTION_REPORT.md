@@ -262,7 +262,7 @@ python scripts/linux/collect_results.py
 
 | 想看什么 | 去哪 |
 |---|---|
-| 每个实验的完整数字、日志路径、结论 | `docs/REPRO_STATUS.md`（233 行） |
+| 每个实验的完整数字、日志路径、结论 | `docs/REPRO_STATUS.md`（200 行，表格为主） |
 | 环境怎么搭、两个坑怎么解 | `docs/LINUX_WSL.md` |
 | 一页结论 | `docs/guide/conclusion.md` |
 | 原始指标（机器可读） | `results/metrics.csv` |
