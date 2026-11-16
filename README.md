@@ -175,16 +175,14 @@ The arithmetic and the alternatives are written up in
 docs/REPRODUCTION_REPORT.md what was reproduced, what was not, and the evidence for both
 docs/REPRO_STATUS.md        authoritative reproduction log: numbers, peaks, timings, SHA-256, reasoning
 docs/LINUX_WSL.md           environment build, mirrors, cu130 pinning, text-embedding generation
+docs/RUNNING.md             how to rerun every experiment, and the five failures you will hit
 docs/RESEARCH_CONTEXT.md    what the project is for and what was asked of it
-docs/VSCODE.md              remote editing setup (Remote-SSH over Tailscale, Remote-WSL)
-docs/REMOTE_TUNNELS.md      why the VS Code tunnel alone was not enough
 docs/initial-report.md      the very first assessment of the project
- docs/guide/                 roadmap (phase 0-7), decision log, cheatsheet, experiment template,
-                            one-page conclusion
+docs/guide/                 roadmap (phase 0-7) and the experiment template
 scripts/ctl.sh              single entry point: health / eval / train / metrics / runs / log
 scripts/linux/              Linux entry point, GPU check, embedding generator, result collector,
                             figure generator, ADE20K probes
-scripts/windows/            Windows entry point and the WSL keep-alive scheduled task
+scripts/windows/            Windows entry point (kept as evidence of the earlier stage)
 results/                    generated metric tables and the weight SHA-256 manifest (never hand-edited)
 assets/                     generated figures
 ```

@@ -19,3 +19,6 @@ outputs/*.pdf
 __pycache__/
 *.pyc
 .DS_Store
+
+# 每台机器的私有连接配置（不提交）
+.dvlm-env

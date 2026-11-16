@@ -20,11 +20,11 @@
 
 ## 2026-11-10 · VS Code 与单卡 COCO
 
-- 当前工作目录迁移为 `C:\Users\LENOVO\Documents\ChatGPT\复现codex`。VS Code 已打开该目录。项目包含本地 Python 3.11.18 的 `.venv`、GPU 与官方入口检查任务、COCO 调试配置和完整 COCO 评估任务。见 `docs/VSCODE.md`。
+- 工作目录为 `D:\DenseVLM-Repro`。项目包含本地 Python 3.11.18 的 `.venv`、GPU 与官方入口检查、COCO 调试配置和完整 COCO 评估任务。
 - `python -m training.main --help` 成功。实测 PyTorch 2.9.0+cu128、torchvision 0.24.0+cu128、CUDA 12.8、xFormers 0.0.33。Windows xFormers wheel 没有可用的 `sm_120` attention 内核，日志 `work/gpu-check.log`。PyTorch CUDA RoIAlign 与 SDPA 的有掩码/无掩码参考对照均通过，日志 `work/gpu-check-sdpa.log`。
 - 外层 `scripts/run_densevlm_windows.py` 适配 SDPA 和受限 NumPy 权重反序列化。官方仓库 commit 与跟踪文件保持原状。权重 `DenseVLM/checkpoints/densevlm_coco_6_save6_512_eva_vib16_12layers.pt` 共 1,270,791,043 字节，SHA-256 为 `16bb52aece2598a62dffe3707930a3c58dee0a20360b9aebb7923a7543156769`。上游报告的 missing keys 为 RoPE 的 sin/cos 缓冲区。
 - COCO 4 图冒烟实验使用 ID 285、7784、15272、189078，133 类，EVA02-CLIP-B-16，单卡 AMP，batch=1，512 参数，`extract-type=v2`。12 个官方指标键均正常输出，峰值分配 860.1 MiB、峰值保留 910.0 MiB。日志 `work/coco-smoke-run.log` 和 `DenseVLM/logs/densevlm_coco_smoke_win/`。子集分数仅供验证流程。
-- 完整 COCO panoptic val2017 的 5,000 张 JPEG、5,000 张 PNG 均按 JSON 文件名逐一核对。正式运行命令见 `docs/VSCODE.md`，实验名 `densevlm_coco_val2017_win`，运行日志 `work/coco-val2017-run.log`。
+- 完整 COCO panoptic val2017 的 5,000 张 JPEG、5,000 张 PNG 均按 JSON 文件名逐一核对。正式运行命令见 `docs/RUNNING.md`，实验名 `densevlm_coco_val2017_win`，运行日志 `work/coco-val2017-run.log`。
 
 ### 完整 COCO 区域分类结果
 
@@ -72,7 +72,7 @@ Thing 的 RoI 使用 GT 框，Stuff 的 RoI 由掩膜求框，因此把 `rois.th
 
 ## 2026-11-14 · 补录完整 COCO 与 ADE20K 区域评估
 
-以下为 2026-11-10 的原始运行日志。均使用官方 DenseVLM checkpoint、EVA02-CLIP-B-16、单卡 batch=1、AMP、512、v2 特征提取和新环境中恢复 torchvision 0.15 掩膜行为的 `--legacy-mask-resize`。COCO 用 133 类，ADE20K 用 150 类。原 VS Code 工程和官方源码基线的位置、命令入口见该工程的 `docs/VSCODE.md` 和 `.vscode/tasks.json`。
+以下为 2026-11-10 的原始运行日志。均使用官方 DenseVLM checkpoint、EVA02-CLIP-B-16、单卡 batch=1、AMP、512、v2 特征提取和新环境中恢复 torchvision 0.15 掩膜行为的 `--legacy-mask-resize`。COCO 用 133 类，ADE20K 用 150 类。Windows 阶段的命令入口与日志见本节各条记录。
 
 | 验证集 | Thing GT 框，Top-1 / Top-5 | Masks-T，Top-1 / Top-5 | Masks-S，Top-1 / Top-5 |
 |---|---:|---:|---:|
@@ -89,7 +89,7 @@ COCO 完整循环耗时 11:17，PyTorch 峰值分配 1447.4 MiB。ADE20K 完整�
 
 work/densevlm-train512/ 保留了同一 COCO 128 图验证子集的 EVA02 学生初始化对照：Thing Boxes 41.80 / 63.42，Masks-T 44.83 / 65.98，Masks-S 20.54 / 44.62（Top-1 / Top-5 mAcc，%）；峰值分配 1173.6 MiB。日志 eval-base.log 和 eva02_base_coco128/params.txt。512 图训练数据下载尚未完成，无该实验的训练或验证结果。
 
-Mac 连接见 docs/REMOTE_TUNNELS.md。Windows 首次启动 Tunnel 时需要账号授权，登录后才能从 Mac 用同一账号连接。迁移冒烟日志为 work/d-drive-coco-smoke.log。
+迁移冒烟日志为 work/d-drive-coco-smoke.log。
 
 迁移后实测：官方仓库 commit 8ca50f7138fcd94e626fa9a845e0da88d146627d，工作树干净；三份权重 SHA-256 与原记录一致；COCO、ADE20K 分别核对 5000、2000 对图像和掩膜。解释器、项目专用 Python、torch、torchvision 和官方训练包均从 D 盘加载，Python 3.11.18 / torch 2.9.0+cu128 / torchvision 0.24.0+cu128 / CUDA 12.8 / RTX 5060 Laptop GPU。
 
@@ -97,7 +97,7 @@ Mac 连接见 docs/REMOTE_TUNNELS.md。Windows 首次启动 Tunnel 时需要账�
 
 ## 2026-11-15 · WSL2 原生 Linux + 原生 xFormers
 
-在拯救者 WSL2（Ubuntu 26.04.1）建独立环境跑完对比。环境与命令见 `docs/LINUX_WSL.md`。解释器 `~/.venvs/densevlm/bin/python` 3.11.18，PyTorch 2.9.0+cu130、torchvision 0.24.0+cu130、xFormers 0.0.33（原生 sm_120 内核），CUDA 13.0，RTX 5060 Laptop。官方 commit `8ca50f7138fcd94e626fa9a845e0da88d146627d`，工作树干净；权重 `checkpoints/densevlm_coco_6_save6_512_eva_vib16_12layers.pt` SHA-256 `16bb52aece2598a62dffe3707930a3c58dee0a20360b9aebb7923a7543156769`。
+在本机 WSL2（Ubuntu 26.04.1）建独立环境跑完对比。环境与命令见 `docs/LINUX_WSL.md`。解释器 `~/.venvs/densevlm/bin/python` 3.11.18，PyTorch 2.9.0+cu130、torchvision 0.24.0+cu130、xFormers 0.0.33（原生 sm_120 内核），CUDA 13.0，RTX 5060 Laptop。官方 commit `8ca50f7138fcd94e626fa9a845e0da88d146627d`，工作树干净；权重 `checkpoints/densevlm_coco_6_save6_512_eva_vib16_12layers.pt` SHA-256 `16bb52aece2598a62dffe3707930a3c58dee0a20360b9aebb7923a7543156769`。
 
 cu128 组合在 Linux 下装不了 xFormers：PyPI 的 0.0.33 wheel 针对 `+cu130` 编译，在 `+cu128` 上导入报 `ImportError: libcudart.so.13`。故 Linux 侧改用 cu130 换取真实内核；Windows 侧保持 cu128 + SDPA。
 
@@ -120,7 +120,7 @@ cu128 组合在 Linux 下装不了 xFormers：PyPI 的 0.0.33 wheel 针对 `+cu1
 
 ## 2026-11-16 · ADE20K Linux 全量 + 同机 SDPA A/B
 
-在拯救者 WSL2 原生 Linux 环境补齐两项评估。解释器 `~/.venvs/densevlm/bin/python` 3.11.18，PyTorch 2.9.0+cu130、torchvision 0.24.0+cu130、xFormers 0.0.33，CUDA 13.0，RTX 5060 Laptop GPU（sm_120，8151 MiB）。官方仓库 commit `8ca50f7138fcd94e626fa9a845e0da88d146627d`，`DenseVLM/` 工作树 `git status --porcelain` 为空，本次未改动任何官方代码。两次运行均 batch=1、workers=0、AMP、512、extract-type v2、`--legacy-mask-resize`。
+在本机 WSL2 原生 Linux 环境补齐两项评估。解释器 `~/.venvs/densevlm/bin/python` 3.11.18，PyTorch 2.9.0+cu130、torchvision 0.24.0+cu130、xFormers 0.0.33，CUDA 13.0，RTX 5060 Laptop GPU（sm_120，8151 MiB）。官方仓库 commit `8ca50f7138fcd94e626fa9a845e0da88d146627d`，`DenseVLM/` 工作树 `git status --porcelain` 为空，本次未改动任何官方代码。两次运行均 batch=1、workers=0、AMP、512、extract-type v2、`--legacy-mask-resize`。
 
 ### 一、ADE20K val 全量（`densevlm_ade20k_val_linux_xf`）
 

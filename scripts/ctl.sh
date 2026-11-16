@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DenseVLM 复现指挥台 · 远程执行入口
+# DenseVLM 复现执行入口（可在目标机上直接跑，也可通过 ssh 驱动远端）
 #
 # 用法：
 #   ./scripts/ctl.sh health                 体检
@@ -18,16 +18,22 @@
 #   ./scripts/ctl.sh runs                    看最近的运行
 #   ./scripts/ctl.sh shell                   交互登录
 #
-# 环境变量可覆盖：DVLM_HOST / DVLM_PORT / DVLM_USER / DVLM_KEY / DVLM_ROOT
+# 环境变量：DVLM_HOST（必填）/ DVLM_PORT / DVLM_USER / DVLM_KEY / DVLM_ROOT / DVLM_PY
 
 set -uo pipefail
 
-HOST=${DVLM_HOST:-100.86.118.15}
-PORT=${DVLM_PORT:-2222}
-RUSER=${DVLM_USER:-lenovo}
-KEY=${DVLM_KEY:-$HOME/.ssh/id_ed25519_legion_wsl}
-ROOT=${DVLM_ROOT:-/home/lenovo/projects/DenseVLM-Repro}
-PY=/home/lenovo/.venvs/densevlm/bin/python
+# 私有配置（每行一个 VAR=value）：先看 DVLM_ENV，再看 ~/.config/dvlm/env，
+# 最后看仓库根的 .dvlm-env（已在 .gitignore 里，不会被提交）
+for _f in "${DVLM_ENV:-}" "$HOME/.config/dvlm/env" "$(dirname "$0")/../.dvlm-env"; do
+  [ -n "$_f" ] && [ -f "$_f" ] && . "$_f"
+done
+
+HOST=${DVLM_HOST:-}
+PORT=${DVLM_PORT:-22}
+RUSER=${DVLM_USER:-$USER}
+KEY=${DVLM_KEY:-$HOME/.ssh/id_ed25519}
+ROOT=${DVLM_ROOT:-$HOME/projects/DenseVLM-Repro}
+PY=${DVLM_PY:-$HOME/.venvs/densevlm/bin/python}
 WEIGHTS=checkpoints/densevlm_coco_6_save6_512_eva_vib16_12layers.pt
 
 SSH_OPTS=(
@@ -41,15 +47,10 @@ remote() { ssh "${SSH_OPTS[@]}" "$RUSER@$HOST" "$@"; }
 die() { echo "错误：$*" >&2; exit 1; }
 
 preflight() {
-  if ! /sbin/ifconfig 2>/dev/null | grep -q "inet 100\."; then
-    echo "✗ 本机 Tailscale 未连接（没有 100.x 地址），所以连不到拯救者。" >&2
-    echo "  修复：open -a Tailscale   然后重试。" >&2
-    echo "  排查：/sbin/ifconfig | grep 'inet 100'  应有 100.122.10.113" >&2
-    exit 1
-  fi
+  [ -n "$HOST" ] || die "未设置 DVLM_HOST（目标 GPU 机器地址）。可写入 ~/.config/dvlm/env。"
   if ! ssh "${SSH_OPTS[@]}" -o ConnectTimeout=8 "$RUSER@$HOST" true 2>/dev/null; then
-    echo "✗ Tailscale 已连，但 $HOST:$PORT 连不上。" >&2
-    echo "  可能是拯救者休眠/关机，或 WSL 发行版没启动（登录 Windows 后会自动拉起）。" >&2
+    echo "✗ 连不上 $RUSER@$HOST:$PORT。" >&2
+    echo "  检查：网络与端口是否可达、$KEY 是否已授权、目标机是否开机。" >&2
     exit 1
   fi
 }
@@ -58,12 +59,8 @@ cmd_health() {
   remote 'bash -s' <<EOS
 set +e
 echo "== GPU =="
-/usr/lib/wsl/lib/nvidia-smi --query-gpu=name,driver_version,memory.used,memory.total --format=csv,noheader
-echo "== tailscale =="
-/usr/bin/tailscale status 2>/dev/null | head -1 || echo "  tailscaled 未运行"
-/usr/bin/tailscale status 2>/dev/null | grep -c "active" | sed 's/^/  active peers: /'
-echo "== 常驻进程 =="
-pgrep -af "sleep infinity" | head -2 || echo "  不在（计划任务可能没生效）"
+SMI=\$(command -v nvidia-smi || echo /usr/lib/wsl/lib/nvidia-smi)
+\$SMI --query-gpu=name,driver_version,memory.used,memory.total --format=csv,noheader 2>/dev/null || echo "  nvidia-smi 不可用"
 echo "== 环境 =="
 $PY -c "import torch, torchvision, xformers; print('  torch', torch.__version__, '| tv', torchvision.__version__, '| xf', xformers.__version__); print('  cuda', torch.version.cuda, '|', torch.cuda.get_device_name(0), torch.cuda.get_device_capability(0))"
 echo "== 仓库 =="

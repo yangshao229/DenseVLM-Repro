@@ -9,12 +9,10 @@
 
 ## 阶段 0 · 通道与环境（已完成）
 
-**目标**：从这台 Mac 能直接驱动拯救者的 WSL，且环境能跑通 sm_120。
+**目标**：在单卡 8 GB 的 Linux 环境上跑通 sm_120，且评估命令可用。
 
 **状态**：完成。
 
-- 通道：Tailscale + SSH，`lenovo@100.86.118.15:2222`，密钥 `~/.ssh/id_ed25519_legion_wsl`。
-- 自启：Windows 计划任务 `WSL-Ubuntu-KeepAlive`，登录即拉起发行版并常驻。
 - 环境：Python 3.11.18（uv 装的 CPython）、torch 2.9.0+cu130、torchvision 0.24.0+cu130、
   xFormers 0.0.33（原生内核）、CUDA 13.0、RTX 5060 Laptop 8151 MiB、`arch_list` 含 sm_120。
 

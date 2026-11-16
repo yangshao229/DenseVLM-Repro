@@ -3,8 +3,8 @@
 set -uo pipefail
 PREC=${1:-amp}
 NAME=${2:-densevlm_train4_linux_${PREC}}
-ROOT=/home/lenovo/projects/DenseVLM-Repro
-PY=/home/lenovo/.venvs/densevlm/bin/python
+ROOT=${DVLM_ROOT:-$HOME/projects/DenseVLM-Repro}
+PY=${DVLM_PY:-$HOME/.venvs/densevlm/bin/python}
 cd "$ROOT/DenseVLM" || exit 1
 
 "$PY" -X utf8 -u ../scripts/linux/run_densevlm_linux.py \

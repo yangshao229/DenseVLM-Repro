@@ -1,12 +1,12 @@
 # WSL2 原生 Linux 环境
 
-本机 Windows 侧实验见 `VSCODE.md`。本文件记录同一台拯救者的 WSL2 原生 Linux 环境，用于验证原生 xFormers attention 内核。
+本文件记录 WSL2 原生 Linux 环境，用于验证原生 xFormers attention 内核。Windows 侧实验见 `docs/REPRO_STATUS.md`。
 
 ## 位置
 
-- 发行版 Ubuntu 26.04.1 LTS，内核 `6.18.33.2-microsoft-standard-WSL2`，主机名 `LAPTOP-8HT14A26`。
+- 发行版 Ubuntu 26.04.1 LTS，内核 `6.18.33.2-microsoft-standard-WSL2`，运行在 Windows 11 的 WSL2 上。
 - 项目根 `~/projects/DenseVLM-Repro`（ext4；从 `/mnt/d/DenseVLM-Repro` rsync 复制，排除 `\.venv`）。D 盘原树保留为 Windows 阶段证据。
-- 解释器 `~/.venvs/densevlm/bin/python`（uv 安装的 CPython 3.11.18）。
+- 解释器 `~/.venvs/densevlm/bin/python`（用 `uv python install 3.11` 装的 CPython 3.11.18）。
 - 官方仓库 HEAD `8ca50f7138fcd94e626fa9a845e0da88d146627d`，工作树干净。复制时因 Windows 侧 `core.autocrlf` 检出为 CRLF，已在 Linux 侧 `git config core.autocrlf false` 并 `git checkout -- .` 恢复为 LF，差异仅行尾。
 
 ## 实测环境
@@ -66,26 +66,6 @@ cd ~/projects/DenseVLM-Repro/DenseVLM
 
 运行结束时 torch Dynamo 会打印若干 `TorchDynamo attempted to trace` 行，属诊断输出，不影响指标。
 
-## 开机自启（保持 Tailscale 在线）
-
-`tailscaled` 跑在 WSL 里，所有 WSL 实例一停，这个 tailnet 节点就会离线，Mac 侧连不上。因此需要一个 Windows 计划任务，在登录时把发行版拉起来并让它常驻。
-
-- `/etc/wsl.conf` 已含 `[boot] systemd=true`，`tailscaled` 服务为 `enabled` + `active`，所以发行版一启动 Tailscale 就自动上线，不需要额外写守护逻辑。
-- `~/bin/wsl-keepalive.sh`：启动时确保 `tailscaled` 在跑，然后 `exec sleep infinity` 常驻，防止 WSL 因空闲超时销毁 VM。
-- `scripts/windows/setup-wsl-keepalive.ps1`：在 Windows 侧生成 `%LOCALAPPDATA%\DenseVLM\wsl-keepalive.vbs`（用 `wscript.exe` 启动，不闪黑窗），并注册登录触发的计划任务 `WSL-Ubuntu-KeepAlive`（允许电池供电运行、不限执行时长、失败重试 3 次）。
-
-安装（Windows PowerShell，不需要管理员）：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File "\\wsl.localhost\Ubuntu\home\lenovo\projects\DenseVLM-Repro\scripts\windows\setup-wsl-keepalive.ps1"
-```
-
-脚本会先校验发行版名，再注册并立即启动一次，最后打印任务状态与 `wsl -l -v`。卸载：
-
-```powershell
-Unregister-ScheduledTask -TaskName "WSL-Ubuntu-KeepAlive" -Confirm:$false
-```
-
 ## 文本嵌入文件（133 / 150 类 panoptic）
 
 仓库只 ship 了 ViT-B/16 的 512 维嵌入：
@@ -98,7 +78,7 @@ Unregister-ScheduledTask -TaskName "WSL-Ubuntu-KeepAlive" -Confirm:$false
 
 ```bash
 cd ~/projects/DenseVLM-Repro
-PY=/home/lenovo/.venvs/densevlm/bin/python
+PY=$HOME/.venvs/densevlm/bin/python
 CK=$PWD/DenseVLM/checkpoints/clipself_coco_6_save6_512_eva_vitl14_24layers.pt   # 用被评估模型的文本塔
 
 $PY scripts/linux/make_panoptic_embeddings.py --model EVA02-CLIP-L-14-336 --cache-dir "$CK" \
