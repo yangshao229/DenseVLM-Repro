@@ -1,7 +1,7 @@
 # 实验记录模板
 
 每次正式实验复制一份到 `DenseVLM/logs/<实验名>/record.md`（远端），并把结论摘要回写
-`docs/REPRO_STATUS.md`。字段来自 `AGENTS.md`，缺一项这条实验就不能拿去和论文比。
+`docs/REPRO_STATUS.md`。字段缺一项，这条实验就不能拿去和论文比。
 
 ```markdown
 # <实验名>

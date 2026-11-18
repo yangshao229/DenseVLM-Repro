@@ -176,7 +176,6 @@ docs/REPRODUCTION_REPORT.md what was reproduced, what was not, and the evidence 
 docs/REPRO_STATUS.md        authoritative reproduction log: numbers, peaks, timings, SHA-256, reasoning
 docs/LINUX_WSL.md           environment build, mirrors, cu130 pinning, text-embedding generation
 docs/RUNNING.md             how to rerun every experiment, and the five failures you will hit
-docs/RESEARCH_CONTEXT.md    what the project is for and what was asked of it
 docs/initial-report.md      the very first assessment of the project
 docs/guide/                 roadmap (phase 0-7) and the experiment template
 scripts/ctl.sh              single entry point: health / eval / train / metrics / runs / log

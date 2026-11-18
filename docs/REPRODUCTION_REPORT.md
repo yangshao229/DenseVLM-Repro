@@ -4,6 +4,8 @@
 > 上游代码：[HVision-NKU/DenseVLM](https://github.com/HVision-NKU/DenseVLM)，本仓库锁定 `8ca50f7138fcd94e626fa9a845e0da88d146627d`，**零改动**
 > 硬件：单张 **RTX 5060 Laptop，8151 MiB**，WSL2 Ubuntu 26.04
 
+> **说明**：报告里的三个「不对劲」是我先看出来的——掩膜池化掉 9 点、CLIPSelf 比论文高 6 点、两个后端不该差 0.03 点。但怎么把「不对劲」变成可检验的实验（A/B 对照怎么设、为什么先跑第三方权重、分辨率该扫哪几个值），是 AI 助手教我的。数字是我亲手跑的，分析框架有外部帮助。
+
 ---
 
 ## 0. 一页纸
@@ -264,10 +266,21 @@ python scripts/linux/collect_results.py
 |---|---|
 | 每个实验的完整数字、日志路径、结论 | `docs/REPRO_STATUS.md`（200 行，表格为主） |
 | 环境怎么搭、两个坑怎么解 | `docs/LINUX_WSL.md` |
-| 一页结论 | `docs/guide/conclusion.md` |
+| 一页结论 | 本文 §0「一页纸」 |
 | 原始指标（机器可读） | `results/metrics.csv` |
 | 训练冒烟对照 | `results/train_smoke.csv` |
 | 图 | `assets/table1_reproduced.png`、`assets/resolution_sweep.png` |
+
+---
+
+## 11. 作者说明：哪些是我的，哪些是学来的
+
+| | |
+|---|---|
+| 我自己做的 | 环境搭建与全部实验执行；每次运行的日志、耗时、峰值显存；12 个指标与论文逐格对照 |
+| 我提出但不会分析的 | 掩膜池化 35.89 对 44.9 的 9 点差；CLIPSelf 系统性偏高 2.7–7.5 点；SDPA 与原生 xFormers 的 0.03 点残差 |
+| AI 教我的方法 | 先用第三方权重（EVA-CLIP）验证评估代码，再判断主行；用 500 张子集扫分辨率而不直接跑全量；用 monkeypatch 隔离单个变量；把「没做」写成算式而不是含糊过去 |
+| 所以这份报告的性质 | 执行是我完成的，归因与实验设计的方法是学来的；可信度看 §3、§4 里那些能重跑的命令和日志 |
 
 ---
 
